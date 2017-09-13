@@ -1,3 +1,3 @@
-# Backborn
+# Backbone
 
-These codes are for the project, backborn in citation network, in the spring semeste, 2017.
+This repo is for the project, backbone detection in networks, in the spring semester, 2017.
