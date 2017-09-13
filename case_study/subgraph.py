@@ -40,29 +40,29 @@ while line:
 		G.add_edge(int(args[0]), int(args[1]), weight=float(args[2]))
 	line = f.readline()
 
-plt.figure(figsize = (30,30), dpi = 100)
-nx.draw(G, pos=pos, node_size=40, edge_color='green', node_color='yellow')
+plt.figure(figsize = (30,30), dpi = 30)
+nx.draw(G, pos=pos, node_size=40, edge_color='grey', node_color='grey', edge_cmap=plt.cm.Blues, alpha = 0.5)
 
 # G2 = nx.DiGraph()
-# G2.add_node(343)
-# G2.add_node(509)
 # G2.add_node(1333)
 # G2.add_node(2243)
+# G2.add_node(509)
+# G2.add_node(343)
 # labels = {}
-# labels[343] = "Privacy-preserving distributed mining of association rules on horizontally partitioned data"
-# labels[509] = "Privacy-preserving data mining"
-# labels[1333] = "Maintaining data privacy in association rule mining"
-# labels[2243] = "Privacy preserving association rule mining in vertically partitioned data"
+# labels[1333] = "A"
+# labels[2243] = "B"
+# labels[509] = "C"
+# labels[343] = "D"
 G2 = nx.DiGraph()
 G2.add_node(1430)
 G2.add_node(5856)
 G2.add_node(21762)
 G2.add_node(343)
 labels = {}
-labels[343] = "Privacy-preserving distributed mining of association rules on horizontally partitioned data"
-labels[1430] = "A secure protocol for computing dot-products in clustered and distributed environments"
-labels[21762] = "Data mining: crossing the chasm"
-labels[5856] = "Protecting Against Data Mining through Samples"
-nx.draw(G2, pos, node_color = 'red', node_size = 400 , alpha = 1, labels = labels,  font_color = 'blue', font_size = 40)
+labels[1430] = "A"
+labels[5856] = "B"
+labels[21762] = "C"
+# labels[343] = "D"
+nx.draw(G2, pos, node_color='b', node_size=400, alpha = 1, labels=labels, font_color = 'purple', font_size = 100)
 #plt.savefig('backbone_subgraph')
 plt.savefig('diversified_rank_subgraph')

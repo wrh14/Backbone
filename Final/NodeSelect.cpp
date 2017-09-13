@@ -241,7 +241,7 @@ vector<vector<double>*>* matrixSumAllValueBegin(SparseMatrix* matrix, int k){
 	return result;
 }
 
-double deltaMatrixSum(SparseMatrix* matrix, int k, int omitIndex, vector<vector<double>*>* base){
+double deltaMatrixSum2(SparseMatrix* matrix, int k, int omitIndex, vector<vector<double>*>* base){
 	double result = 0;
 	double baseSum = 0;
 	double* delta0 = new double[matrix->getSize()];
@@ -328,21 +328,15 @@ double deltaMatrixSum(SparseMatrix* matrix, int k, int omitIndex, vector<vector<
 	return result;
 }
 
-double deltaMatrixSum2(SparseMatrix* matrix, int k, int omitIndex, vector<vector<double>*>* base){
+double deltaMatrixSum(SparseMatrix* matrix, int k, int omitIndex, vector<vector<double>*>* base){
 	double result = 0;
 	double baseSum = 0;
-	double* delta0 = new double[matrix->getSize()];
-	double* delta = new double[matrix->getSize()];
-
+	double* delta0 = new double[matrix->getSize()]();
+	double* delta = new double[matrix->getSize()]();
 
 	vector<int>* oldActivated = new vector<int>;
 	vector<int>* newActivated = new vector<int>;
 	double* tempDelta;
-
-	for(int i = 0; i<matrix->getSize(); i++){
-		delta[i] = 0;
-		delta0[i] = 0;
-	}
 
 	set<Edge>::iterator itEdge;
 	vector<int>::iterator itVecInt;
@@ -367,7 +361,6 @@ double deltaMatrixSum2(SparseMatrix* matrix, int k, int omitIndex, vector<vector
 
 
 	for(int i=1; i<k; i++){
-
 		for(itVecInt = oldActivated->begin(); itVecInt != oldActivated->end(); itVecInt++){
 			for(itEdge = matrix->getIterFRowBegin(*itVecInt); itEdge != matrix->getIterFRowEnd(*itVecInt); itEdge++){
 				if(delta[itEdge->dst] == 0)newActivated->push_back(itEdge->dst);
@@ -375,32 +368,20 @@ double deltaMatrixSum2(SparseMatrix* matrix, int k, int omitIndex, vector<vector
 			}
 		}
 
-
-
 		for(itEdge = matrix->getIterFRowBegin(omitIndex); itEdge != matrix->getIterFRowEnd(omitIndex); itEdge++){
 			delta[itEdge->dst] = delta[itEdge->dst] + (base->at(i-1)->at(omitIndex) - delta0[omitIndex]) * itEdge->value;
 		}
 
-
-
 		if(delta[omitIndex] == 0) newActivated->push_back(omitIndex);
 		delta[omitIndex] = base->at(i)->at(omitIndex);
-
-
-
-		for(itVecInt = oldActivated->begin(); itVecInt != oldActivated->end(); itVecInt++){
-			delta0[*itVecInt] = 0;
-		}
-
 
 		for(itVecInt = newActivated->begin(); itVecInt != newActivated->end(); itVecInt++){
 			result = result + delta[*itVecInt];
 		}
 
-
-		tempDelta = delta0;
+		delete delta0
 		delta0 = delta;
-		delta = tempDelta;
+		delta = new double[matrix->getSize()]();
 
 		delete oldActivated;
 		oldActivated = newActivated;
