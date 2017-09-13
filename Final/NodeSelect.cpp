@@ -379,7 +379,7 @@ double deltaMatrixSum(SparseMatrix* matrix, int k, int omitIndex, vector<vector<
 			result = result + delta[*itVecInt];
 		}
 
-		delete delta0
+		delete delta0;
 		delta0 = delta;
 		delta = new double[matrix->getSize()]();
 
