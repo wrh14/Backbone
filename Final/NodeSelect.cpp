@@ -33,7 +33,7 @@ void saveToLocal(pair<vector<int>*, vector<pair<int, double>>*>* result, string 
 
 //-------------Fifth functional block: Run a few baseline------------
 vector<pair<int, double>>* pageRank(SparseMatrix* matrix, int resultNum, double alpha, double threshold);
-vector<int>* diversedRank(SparseMatrix* matrix, int resultNum, double alpha, double threshold, vector<double>* p = NULL);
+vector<int>* diversifiedRank(SparseMatrix* matrix, int resultNum, double alpha, double threshold, vector<double>* p = NULL);
 vector<pair< int, double>>* connecivity(SparseMatrix* matrix, int N);//greedy
 vector<int>* maximalIndepSet(SparseMatrix* matrix);
 
@@ -46,7 +46,7 @@ string numToString(Type value);
 
 
 void backbone();
-void baseline_diversifiedRank(){};
+void baseline_diversifiedRank();
 void baseline_pageRank();
 void baseline_connectivity();
 void self(){
@@ -760,7 +760,7 @@ void baseline_pageRank(){
 	cin >> dataset >> name >> alpha >> N >> threshold;
 
 	string inputAddress = "../../Dataset/" + dataset + "/indexNetwork.txt";
-	string saveAddress = "../../Output/" + dataset + "/topNode/" + name + "pageRank" + "_alpha=" + numToString<double>(alpha) + "_N=" + numToString<int>(N) + "_threshold=" + numToString<double>(threshold);
+	string saveAddress = "../../Output/" + dataset + "/topNode/" + name + "_pageRank" + "_alpha=" + numToString<double>(alpha) + "_N=" + numToString<int>(N) + "_threshold=" + numToString<double>(threshold);
 
 	clock_t begin = clock();
 	SparseMatrix* inputGraph = inputNetwork(inputAddress);
@@ -774,7 +774,7 @@ void baseline_pageRank(){
     ofstream outFile;
     outFile.open(runningTimeAddress.c_str(), ios::app);
     outFile << endl;
-	string filename = name + "pageRank" + "_alpha=" + numToString<double>(alpha) + "_N=" + numToString<int>(N) + "_threshold=" + numToString<double>(threshold);
+	string filename = name + "_pageRank" + "_alpha=" + numToString<double>(alpha) + "_N=" + numToString<int>(N) + "_threshold=" + numToString<double>(threshold);
 	outFile << filename << " " << runningTime << endl;
     outFile.close();
 }
@@ -837,6 +837,36 @@ vector<pair<int, double>>* pageRank(SparseMatrix* matrix, int resultNum, double 
 	delete[] oldRank;
 	delete[] newRank;
 	return result;
+}
+
+void baseline_diversifiedRank(){
+	cout << "Enter the Dataset name, name, k, alpha, N, M, ifCS, ifDelta, ifSub" << endl;
+	cout << "Enter the Dataset name, name, alpha, N, threshold" << endl;
+	
+	string dataset, name;
+	int N;
+	double alpha, threshold;
+
+	cin >> dataset >> name >> alpha >> N >> threshold;
+
+	string inputAddress = "../../Dataset/" + dataset + "/indexNetwork.txt";
+	string saveAddress = "../../Output/" + dataset + "/topNode/" + name + "_diversifiedRank" + "_alpha=" + numToString<double>(alpha) + "_N=" + numToString<int>(N) + "_threshold=" + numToString<double>(threshold);
+
+	clock_t begin = clock();
+	SparseMatrix* inputGraph = inputNetwork(inputAddress);
+	inputGraph->rowNormalize();
+
+	vector<int>* result = diversifiedRank(inputGraph, N, alpha, threshold);
+	saveToLocal(result, saveAddress);
+	clock_t end = clock();
+	clock_t runningTime = (double)(end-begin)/CLOCKS_PER_SEC;
+	string runningTimeAddress = "../../Output/" + dataset+ "/runningTime.txt";
+    ofstream outFile;
+    outFile.open(runningTimeAddress.c_str(), ios::app);
+    outFile << endl;
+	string filename = name + "_diversifiedRank" + "_alpha=" + numToString<double>(alpha) + "_N=" + numToString<int>(N) + "_threshold=" + numToString<double>(threshold);
+	outFile << filename << " " << runningTime << endl;
+    outFile.close();
 }
 
 vector<int>* diversifiedRank(SparseMatrix* matrix, int resultNum, double alpha, double threshold, vector<double>* p){
