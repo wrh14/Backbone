@@ -614,97 +614,6 @@ vector<pair<int, double>>* katzGreedyWithPriorSet(SparseMatrix* matrix,int k, in
 }
 
 
-
-//-----------second block----------------
-
-void labelNetworkEdge(string address, SparseMatrix* edgeSet, SparseMatrix* matrix){
-        ofstream file;
-        file.open(address, ios::out);
-        file<<"edgeNum: "<< matrix->getNonZeroNum() <<"\n";
-        set<Edge>::iterator it, it1, it2;
-        for(int i=0; i<matrix->getSize(); i++){
-                it1 = matrix->getIterFRowBegin(i);
-                it2 = matrix->getIterFRowEnd(i);
-                for(it = it1; it!= it2; it++){
-			if(edgeSet->ifExist(*it)){
-				file << it->src << " " << it->dst << " " << it->value << " top" << endl;
-			}
-			else{
-				file << it->src << " " << it->dst << " " << it->value << " not" << endl;
-			}
-		}
-        }
-	file.close();
-}
-
-//-----------give labels to each node and save----------------
-void labelNetworkNode(string address, set<int>* nodeSet, set<int>* rawNodeSet, vector<string>* dictionary){
-	ofstream file;
-	file.open(address, ios::out);
-	file << "nodeNum: " << dictionary->size() << endl;
-	for(int i=0; i<dictionary->size(); i++){
-		if(rawNodeSet->find(i) != rawNodeSet->end()){
-			if(nodeSet->find(i) != nodeSet->end()){
-				file << "top " << dictionary->at(i) << endl;
-			}
-			else{
-				file << "not " << dictionary->at(i) << endl;
-			}
-		}
-	}
-	file.close();
-}
-
-
-//-----------Third block----------
-//
-//
-//-----------transformation between nodes and edges----------
-
-
-void nodesToEdges(set<int>* nodeSet, SparseMatrix* matrix, string saveAddress){
-	SparseMatrix* result = new SparseMatrix(matrix->getSize());
-
-	set<Edge>::iterator it;
-	for(int i=0; i<matrix->getSize(); i++){
-		for(it = matrix->getIterFRowBegin(i); it != matrix->getIterFRowEnd(i); it++){
-			if( (nodeSet->find(it->src) != nodeSet->end()) && nodeSet->find(it->dst) != nodeSet->end()){
-				result->insert(Edge(it->src, it->dst, it->value));
-			}
-		}
-	}
-
-	result->saveToLocal(saveAddress);
-
-	delete result;
-}
-
-void edgesToNodes(SparseMatrix* edgeSet, string saveAddress){
-	set<int>* result = new set<int>;
-
-	set<Edge>::iterator it;
-	for(int i=0; i<edgeSet->getSize(); i++){
-		for(it = edgeSet->getIterFRowBegin(i); it != edgeSet->getIterFRowEnd(i); it++){
-			result->insert(it->src);
-			result->insert(it->dst);
-		}
-	}
-
-        ofstream file;
-        file.open(saveAddress, ios::out);
-
-	file << result->size() << endl;
-	set<int>::iterator itInt;
-	for(itInt = result->begin(); itInt != result->end(); itInt ++){
-		file << *itInt << endl;
-	}
-
-	file.close();
-}
-
-
-
-
 //-----------sixth block--------------
 //
 //
@@ -725,30 +634,24 @@ SparseMatrix* inputNetwork(string filename, bool ifSelf){
 	result = new SparseMatrix(nodeNum);
 
 
-    	getline(infile,s);
-    	istringstream line (s);
-    	line >> s2 >> edgeNum;
-    	cout << "EdgeNum is "<< edgeNum<<endl;
+	getline(infile,s);
+	istringstream line (s);
+	line >> s2 >> edgeNum;
+	cout << "EdgeNum is "<< edgeNum<<endl;
 
-    	int tempNode1, tempNode2;
+	int tempNode1, tempNode2;
 	double temp;
 
-    	for(int i=0; i<edgeNum; i++){
-        	getline(infile,s);
-        	istringstream line (s);
-        	line >> tempNode1 >> tempNode2 >> temp;
-/*		cout << tempNode1 << " " << tempNode2 <<endl;
-		if(tempNode1 > nodeNum || tempNode2 > nodeNum){
-			cout << "out of index. wrong with indexNetwork.txt" <<endl;
-			exit(0);
-		}
-*/		if(tempNode1 == tempNode2 && (!ifSelf)) continue;
-        	result->insert(Edge(tempNode1, tempNode2, temp));
-    	}	
+	for(int i=0; i<edgeNum; i++){
+    	getline(infile,s);
+    	istringstream line (s);
+    	line >> tempNode1 >> tempNode2 >> temp;
+	if(tempNode1 == tempNode2 && (!ifSelf)) continue;
+    	result->insert(Edge(tempNode1, tempNode2, temp));
+	}
 
-
-        cout << "Finish the reading! Real edgeNum is" << result->getNonZeroNum()<<endl;
-    	return result;
+    cout << "Finish the reading! Real edgeNum is" << result->getNonZeroNum()<<endl;
+	return result;
 }
 
 //-----------read in a dictionary--------------
@@ -772,7 +675,6 @@ vector<string>* inputDictionary(string dictionary){
 		}
                 indexToName->push_back(s);
         }
-//        cout << indexToName->size();
 
         infile.close();
 
@@ -826,6 +728,7 @@ void saveToLocal(vector<int>* result, string address){
 	cout << "finish saving " << address <<endl;
 	file.close();
 }
+
 void saveToLocal(pair<vector<int>*, vector<pair<int, double>>*>* result, string address){
 	ofstream file;
 	cout << "begin to save " << address << endl;
@@ -839,16 +742,12 @@ void saveToLocal(pair<vector<int>*, vector<pair<int, double>>*>* result, string 
 	file.close();
 }
 
-
-
-
 template <class Type>
 string numToString(Type value) {
     stringstream ss;
     ss << value;
     return ss.str();
 }
-
 
 
 vector<pair<int, double>>* pageRank(SparseMatrix* matrix, int resultNum, double alpha, double threshold){
@@ -1209,134 +1108,4 @@ vector<int>* maximalIndepSet(SparseMatrix* matrix){
 	}
 	delete[] ifNeb;
 	return result;
-}
-
-
-//-----------find top node set with a faster approximate method---------
-vector<pair<int, double>>* katzGreedyWithAppoximateCriteria(SparseMatrix* matrix, int k, int size){
-	vector<pair<int, double>>* result = new vector<pair<int, double>>;
-
-	//*********************Accuracy**************
-	double base = matrixSum(matrix,k,-1, matrix->getSize()*k*2);
-//	double base = 1;
-	cout << "base is "<< base << endl;
-
-
-
-	for(int i=0; i<size; i++){
-		cout << "begin to select " << i <<"'s node" << endl;
-		vector<vector<double>*>* baseEndWith = matrixSumAllValue(matrix, k);
-		vector<vector<double>*>* baseBeginWith = matrixSumAllValueBegin(matrix, k);
-
-		double* delta = new double[matrix->getSize()];
-		for(int j=0; j<matrix->getSize(); j++){
-			delta[j] = 0;
-		}
-//		cout << "finish computing the current base" << endl;
-
-
-		for(int j=0; j<matrix->getSize(); j++){
-			baseBeginWith->at(0)->at(j) += 1;
-		}
-		for(int l=1; l<k; l++){
-			for(int j=0; j<matrix->getSize(); j++){
-				baseBeginWith->at(l)->at(j) += baseBeginWith->at(l-1)->at(j);
-//				baseBeginWith->at(l)->at(j) += 1;
-			}
-		} 
-
-		set<Edge>::iterator itEdge, itEdge2;
-
-		for(int j=0; j<matrix->getSize(); j++){
-			for(itEdge = matrix->getIterFRowBegin(j); itEdge != matrix->getIterFRowEnd(j); itEdge++){
-				for(itEdge2 = matrix->getIterFColBegin(j); itEdge2 != matrix->getIterFColEnd(j); itEdge2++){
-					double temp = itEdge->value * itEdge2->value;
-					for(int l=0; l<k-3; l++){
-						delta[j] += baseEndWith->at(l)->at(itEdge2->src) * temp * baseBeginWith->at(k-4-l)->at(itEdge->dst);
-					}
-					delta[j] += baseEndWith->at(k-3)->at(itEdge2->src) * temp;
-					delta[j] += temp * baseBeginWith->at(k-3)->at(itEdge->dst);
-				}
-				delta[j] += itEdge->value * baseBeginWith->at(k-2)->at(itEdge->dst);
-			}
-			for(itEdge2 = matrix->getIterFColBegin(j); itEdge2 != matrix->getIterFColEnd(j); itEdge2++){
-				delta[j] += itEdge2->value * baseEndWith->at(k-2)->at(itEdge2->src);
-			}
-		}
-
-		double maxValue = -1;
-		int optId;
-		for(int j=0; j<matrix->getSize(); j++){
-			if(delta[j] > maxValue){
-				maxValue = delta[j];
-				optId = j;
-			}
-		}
-
-		double remaining = deltaMatrixSum(matrix,k,optId, baseEndWith);	
-
-		set<Edge>::iterator it;
-		for(it = matrix->getIterFRowBegin(optId); it!= matrix->getIterFRowEnd(optId); ){
-			Edge temp(it->src, it->dst, 0);
-			it++;
-			matrix->erase(temp);
-		}
-		for(it = matrix->getIterFColBegin(optId); it!= matrix->getIterFColEnd(optId); ){
-			Edge temp(it->src, it->dst, 0);
-			it++;
-			matrix->erase(temp);
-		}
-		cout << "The " << i << "'s node is " << optId << ", and the remaining value is "<<remaining  <<endl;
-
-
-		result->push_back(pair<int, double>(optId, (double(remaining))/base));
-
-		for(int l=0; l<k; l++){
-			delete baseEndWith->at(l);
-			delete baseBeginWith->at(l);
-		}
-		delete[] delta;
-
-	}
-
-	return result;
-}
-
-
-
-//------------selfTest--------------
-void computeRemaining(){
-	string nodeAddress = "../../Output/citation_learning/topNode/baseline/diversedRank_week12_size=100_alpha=0.9_threshold=1e-15";
-	string networkAddress = "../../Dataset/citation_learning/indexNetwork.txt";
-	int k=10;
-	double alpha = 0.9;
-
-	set<int>* nodeSet = inputNodeSet(nodeAddress);
-	SparseMatrix* temp = inputNetwork(networkAddress);
-	temp->rowNormalize();
-	SparseMatrix* matrix = (*temp)*alpha;
-
-	double base = matrixSum(matrix,k,-1, matrix->getSize()*k*2);
-	cout << "base is " << base << endl;
-
-
-	set<int>::iterator itInt;
-
-	for(itInt = nodeSet->begin(); itInt != nodeSet->end(); itInt++){
-		int optId = *itInt;
-		set<Edge>::iterator it;
-		double remaining1 = matrixSum(matrix,k,optId, matrix->getSize()*k*2);
-		for(it = matrix->getIterFRowBegin(optId); it!= matrix->getIterFRowEnd(optId); ){
-			Edge temp(it->src, it->dst, 0);
-			it++;
-			matrix->erase(temp);
-		}
-		for(it = matrix->getIterFColBegin(optId); it!= matrix->getIterFColEnd(optId); ){
-			Edge temp(it->src, it->dst, 0);
-			it++;
-			matrix->erase(temp);
-		}
-		double remaining = matrixSum(matrix,k,-1, matrix->getSize()*k*2);
-        	cout << "Afer removing " << optId << ", remaining value is " << remaining/base << " and "<<  remaining/base <<endl;
-	}
 }
